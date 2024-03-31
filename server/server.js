@@ -21,24 +21,30 @@ io.on('connection', (socket) => {
   console.log('New client connected');
 
   if (waitingPlayer) {
+    // Two players have connected
+    console.log('Two players have connected. Starting game session.');
+
     const gameSession = [socket, waitingPlayer];
     waitingPlayer = null;
 
     gameSession.forEach((playerSocket, index) => {
-    playerSocket.on('playerChoice', (choice) => {
+      playerSocket.on('playerChoice', (choice) => {
         gameSession[index] = { socket: playerSocket, choice };
         if (gameSession[0].choice && gameSession[1].choice) {
-        const result = determineWinner(gameSession[0].choice, gameSession[1].choice);
-        gameSession.forEach((player) => {
+          // Both players have made their choices
+          console.log('Both players have made their choices.');
+
+          const result = determineWinner(gameSession[0].choice, gameSession[1].choice);
+          gameSession.forEach((player) => {
             player.socket.emit('gameResult', {
-            yourChoice: player.choice,
-            opponentChoice: gameSession[1 - gameSession.indexOf(player)].choice,
-            result: result.message,
-            winner: result.winner === 'player' ? player.socket.id : gameSession[1 - gameSession.indexOf(player)].socket.id
+              yourChoice: player.choice,
+              opponentChoice: gameSession[1 - gameSession.indexOf(player)].choice,
+              result: result.message,
+              winner: result.winner === 'player' ? player.socket.id : gameSession[1 - gameSession.indexOf(player)].socket.id
             });
-        });
+          });
         }
-        });
+      });
     });
   } else {
     // Wait for an opponent

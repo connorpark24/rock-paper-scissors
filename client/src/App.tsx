@@ -20,18 +20,24 @@ const App: React.FC = () => {
   useEffect(() => {
     socket.on(
       "gameResult",
-      (data: { opponentChoice: Choice; result: string }) => {
+      (data: {
+        yourChoice: Choice;
+        opponentChoice: Choice;
+        result: string;
+        winner: string;
+      }) => {
         setOpponentChoice(data.opponentChoice);
         setResult(data.result);
       }
     );
 
     socket.on("waitingForOpponent", () => {
-      console.log("Waiting");
+      console.log("Waiting for an opponent...");
     });
 
     return () => {
       socket.off("gameResult");
+      socket.off("waitingForOpponent");
     };
   }, []);
 
